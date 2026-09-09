@@ -1,0 +1,402 @@
+<div style="max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; padding: 10px; font-family: Tahoma, sans-serif;">
+    
+    <div style="text-align: center; margin-bottom: 15px;">
+        <div style="font-size: 35px; margin-bottom: 5px;">🔍</div>
+        <h2 style="font-size: 20px; color: #333; margin: 0; font-weight: bold;">واجهة البحث والفلترة</h2>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        
+        <div style="display: flex; flex-direction: row !important; gap: 8px; margin-bottom: 10px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="searchFromDate" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">من تاريخ</label>
+                <input type="date" id="searchFromDate" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1; width: 48%;">
+                <label for="searchToDate" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">إلى تاريخ</label>
+                <input type="date" id="searchToDate" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: row !important; gap: 8px; margin-bottom: 10px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="searchUnit" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">الوحدة</label>
+                <select id="searchUnit" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">الكل</option>
+                    <option value="تصوير">تصوير</option>
+                    <option value="تصميم">تصميم</option>
+                    <option value="مونتاج">مونتاج</option>
+                    <option value="تحرير">تحرير</option>
+                    <option value="ناشر">ناشر</option>
+                    <option value="توثيق">توثيق</option>
+                    <option value="تطوع">تطوع</option>
+                </select>
+            </div>
+            <div style="flex: 1; width: 48%;">
+                <label for="searchStaff" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">الكوادر</label>
+                <select id="searchStaff" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">الكل</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: row !important; gap: 8px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="searchType" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">النوع</label>
+                <select id="searchType" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">الكل</option>
+                </select>
+            </div>
+            <div style="flex: 1; width: 48%; display: flex; align-items: flex-end;">
+                <button id="clearFiltersBtn" style="width: 100%; height: 40px; background: #dc3545; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">❌ إلغاء الفلترة</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 10px;">
+        <span id="completedTasksHeader" style="font-size: 22px; font-weight: bold; color: #dc3545;">الواجبات المنجزة (0)</span>
+    </div>
+
+    <div style="border-bottom: 1px solid #000; margin-bottom: 20px;"></div>
+
+    <div id="completedTasksList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+</div>
+
+<!-- نافذة التراجع (Modal) -->
+<div id="revertModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 5000;">
+    <div style="background: #fff; padding: 25px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="font-size: 50px; color: #28a745; margin-bottom: 10px;">↩️</div>
+        <h3 style="font-size: 18px; color: #333; margin: 0 0 10px 0; font-weight: bold;">تمت إعادة الواجب إلى الرئيسية</h3>
+        <h2 id="revertTaskTitle" style="font-size: 16px; color: #0066cc; margin: 0 0 20px 0; font-weight: bold;"></h2>
+        <button id="closeRevertBtn" style="width: 100%; height: 45px; background: #0066cc; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">حسناً</button>
+    </div>
+</div>
+
+<!-- نافذة تأكيد الحذف (Modal) -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 5000;">
+    <div style="background: #fff; padding: 25px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="font-size: 50px; color: #dc3545; margin-bottom: 10px;">🗑️</div>
+        <h3 style="font-size: 18px; color: #333; margin: 0 0 10px 0; font-weight: bold;">هل أنت متأكد من الحذف؟</h3>
+        <h2 id="deleteTaskTitle" style="font-size: 16px; color: #0066cc; margin: 0 0 20px 0; font-weight: bold;"></h2>
+        <div style="display: flex; gap: 10px;">
+            <button id="confirmDeleteBtn" style="flex: 1; height: 45px; background: #dc3545; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">تأكيد الحذف</button>
+            <button id="cancelDeleteBtn" style="flex: 1; height: 45px; background: #6c757d; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">إلغاء الحذف</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        let completedTasks = (JSON.parse(localStorage.getItem('completedTasks')) || []).filter(t => t.id !== "placeholder_completed");
+        
+        const mediaStaff = JSON.parse(localStorage.getItem('mediaStaff')) || [];
+        const currentUsername = localStorage.getItem('currentUser') || '';
+        const currentUserData = mediaStaff.find(s => s.name === currentUsername);
+        const userRole = currentUserData ? currentUserData.role : 'user';
+        
+        const unitStaffData = {};
+        const unitTypeMapping = {
+            "تصوير": ["نشر", "أرشيف"],
+            "تصميم": ["نشر", "طباعة"],
+            "مونتاج": ["نشر"],
+            "تحرير": ["نشر", "أرشيف"],
+            "ناشر": ["نشر"],
+            "توثيق": ["أرشيف"],
+            "تطوع": ["نشر", "أرشيف"]
+        };
+        
+        mediaStaff.forEach(member => {
+            if (!unitStaffData[member.unit]) {
+                unitStaffData[member.unit] = [];
+            }
+            if (!unitStaffData[member.unit].includes(member.name)) {
+                unitStaffData[member.unit].push(member.name);
+            }
+        });
+
+        const searchFromDate = document.getElementById('searchFromDate');
+        const searchToDate = document.getElementById('searchToDate');
+        const searchUnit = document.getElementById('searchUnit');
+        const searchStaff = document.getElementById('searchStaff');
+        const searchType = document.getElementById('searchType');
+        const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+        const completedTasksHeader = document.getElementById('completedTasksHeader');
+        const completedTasksList = document.getElementById('completedTasksList');
+        
+        const revertModal = document.getElementById('revertModal');
+        const revertTaskTitle = document.getElementById('revertTaskTitle');
+        const closeRevertBtn = document.getElementById('closeRevertBtn');
+        
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteTaskTitle = document.getElementById('deleteTaskTitle');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+        let taskToRevertId = null;
+        let taskToDeleteId = null;
+
+        function populateStaff(selectedUnit, lockedStaff = '') {
+            searchStaff.innerHTML = '';
+            
+            if (selectedUnit && unitStaffData[selectedUnit]) {
+                unitStaffData[selectedUnit].forEach(staffName => {
+                    const opt = document.createElement('option');
+                    opt.value = staffName;
+                    opt.textContent = staffName;
+                    searchStaff.appendChild(opt);
+                });
+                
+                if (lockedStaff) {
+                    const staffOption = Array.from(searchStaff.options).find(opt => opt.value === lockedStaff);
+                    if (staffOption) {
+                        searchStaff.insertBefore(staffOption, searchStaff.firstChild);
+                        searchStaff.value = lockedStaff;
+                    }
+                }
+            } else {
+                const allOpt = document.createElement('option');
+                allOpt.value = '';
+                allOpt.textContent = 'الكل';
+                searchStaff.appendChild(allOpt);
+                searchStaff.value = '';
+            }
+        }
+
+        function populateTypes(selectedUnit) {
+            searchType.innerHTML = '<option value="">الكل</option>';
+            if (selectedUnit && unitTypeMapping[selectedUnit]) {
+                unitTypeMapping[selectedUnit].forEach(type => {
+                    const opt = document.createElement('option');
+                    opt.value = type;
+                    opt.textContent = type;
+                    searchType.appendChild(opt);
+                });
+            }
+        }
+
+        searchUnit.addEventListener('change', function() {
+            const selectedUnit = this.value;
+            populateStaff(selectedUnit);
+            populateTypes(selectedUnit);
+            renderCompletedTasks();
+        });
+
+        function formatTime12(timeString) {
+            if (!timeString) return 'غير محدد';
+            const [hours, minutes] = timeString.split(':');
+            let h = parseInt(hours);
+            const m = minutes || '00';
+            const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+            h = h % 12;
+            h = h ? h : 12;
+            return `${h}:${m} ${ampm}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'غير محدد';
+            return dateString.replace(/-/g, '/');
+        }
+
+        function renderCompletedTasks() {
+            const fromDate = searchFromDate.value;
+            const toDate = searchToDate.value;
+            const unit = searchUnit.value;
+            const staff = searchStaff.value;
+            const type = searchType.value;
+
+            let filteredTasks = completedTasks.filter(task => {
+                if (userRole === 'user') {
+                    if (!(task.staff && task.staff.includes(currentUsername))) return false;
+                }
+                
+                if (fromDate && task.date < fromDate) return false;
+                if (toDate && task.date > toDate) return false;
+                if (unit && task.unit !== unit) return false;
+                if (staff && !(task.staff && task.staff.includes(staff))) return false;
+                if (type && task.type !== type) return false;
+                
+                return true;
+            });
+
+            const isAllHidden = localStorage.getItem('hideAllTasks') === 'true';
+            const hiddenStaffList = JSON.parse(localStorage.getItem('hiddenStaffTasks')) || [];
+
+            if (isAllHidden) {
+                filteredTasks = [];
+            } else if (hiddenStaffList.length > 0) {
+                filteredTasks = filteredTasks.filter(task => {
+                    if (task.staff) {
+                        return !task.staff.some(staffName => hiddenStaffList.includes(staffName));
+                    }
+                    return true;
+                });
+            }
+
+            filteredTasks.sort((a, b) => b.date.localeCompare(a.date));
+            completedTasksHeader.textContent = `الواجبات المنجزة (${filteredTasks.length})`;
+
+            if (filteredTasks.length === 0) {
+                completedTasksList.innerHTML = '<div style="text-align: center; padding: 30px; color: #777; background: #fff; border: 1px solid #eee; border-radius: 8px;">لا توجد واجبات منجزة حالياً.</div>';
+                return;
+            }
+
+            let html = '';
+            filteredTasks.forEach((task, index) => {
+                const formattedTime = formatTime12(task.time);
+                const formattedDate = formatDate(task.date);
+                
+                let borderColor = '#e0e0e0';
+                if (task.type === 'نشر') borderColor = '#dc3545';
+                else if (task.type === 'طباعة') borderColor = '#28a745';
+                else if (task.type === 'أرشيف') borderColor = '#ffc107';
+                
+                html += `
+                    <div style="background: #fff; border: 2px solid ${borderColor}; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
+                            <span style="color: #0066cc; font-size: 14px; font-weight: bold;">${index + 1}.</span>
+                            <span style="font-size: 18px; font-weight: bold; color: #333;">${task.title}</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>🏢 الوحدة: <strong>${task.unit}</strong></span>
+                                    <span>📁 النوع: <strong style="color: #666;">${task.type}</strong></span>
+                                </div>
+                            </div>
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>⏰ الوقت: <strong>${formattedTime}</strong></span>
+                                    <span>📅 التاريخ: <strong style="color: #666;">${formattedDate}</strong></span>
+                                </div>
+                            </div>
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                📍 الموقع: <strong>${task.location ? task.location : 'غير محدد'}</strong>
+                            </div>
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                👥 الكوادر: <strong>${task.staff ? task.staff.join('، ') : 'لا يوجد'}</strong>
+                            </div>
+                        </div>
+                        ${userRole === 'admin' ? `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px;">
+                            <button onclick="editTask('${task.id}')" style="background: #ffc107; color: #000; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✏️ تعديل</button>
+                            <button onclick="revertTask('${task.id}')" style="background: #28a745; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">↩️ تراجع</button>
+                            <button onclick="promptDelete('${task.id}')" style="background: #dc3545; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">🗑️ حذف</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            completedTasksList.innerHTML = html;
+        }
+
+        window.editTask = function(id) {
+            const task = completedTasks.find(t => String(t.id) === String(id));
+            if (!task) return;
+            localStorage.setItem('editingTask', JSON.stringify(task));
+            if (window.appInstance && typeof window.appInstance.switchView === 'function') {
+                window.appInstance.switchView('new');
+            }
+        };
+
+        window.revertTask = function(id) {
+            taskToRevertId = id;
+            const task = completedTasks.find(t => String(t.id) === String(id));
+            if (task) {
+                revertTaskTitle.textContent = task.title;
+                revertModal.style.display = 'flex';
+            }
+        };
+
+        window.promptDelete = function(id) {
+            taskToDeleteId = id;
+            const task = completedTasks.find(t => String(t.id) === String(id));
+            if (task) {
+                deleteTaskTitle.textContent = task.title;
+                deleteModal.style.display = 'flex';
+            }
+        };
+
+        closeRevertBtn.addEventListener('click', async function() {
+            if (taskToRevertId !== null) {
+                const taskIndex = completedTasks.findIndex(t => String(t.id) === String(taskToRevertId));
+                if (taskIndex !== -1) {
+                    const task = completedTasks.splice(taskIndex, 1)[0];
+                    task.status = 'pending';
+                    
+                    let savedTasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+                    savedTasks.push(task);
+                    
+                    localStorage.setItem('savedTasks', JSON.stringify(savedTasks));
+                    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+                    
+                    if (window.appInstance && typeof window.appInstance.syncWithIndicator === 'function') {
+                        await window.appInstance.syncWithIndicator();
+                    }
+                    if (window.appInstance && typeof window.appInstance.showNotification === 'function') {
+                        window.appInstance.showNotification(`↩️ تم إعادة الواجب: ${task.title} إلى الرئيسية`, 'info');
+                    }
+                    
+                    renderCompletedTasks();
+                }
+                taskToRevertId = null;
+            }
+            revertModal.style.display = 'none';
+        });
+
+        confirmDeleteBtn.addEventListener('click', async function() {
+            if (taskToDeleteId !== null) {
+                completedTasks = completedTasks.filter(t => String(t.id) !== String(taskToDeleteId));
+                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+                
+                if (window.appInstance && typeof window.appInstance.syncWithIndicator === 'function') {
+                    await window.appInstance.syncWithIndicator();
+                }
+                if (window.appInstance && typeof window.appInstance.showNotification === 'function') {
+                    window.appInstance.showNotification('🗑️ تم حذف الواجب بنجاح!', 'error');
+                }
+                
+                renderCompletedTasks();
+                taskToDeleteId = null;
+            }
+            deleteModal.style.display = 'none';
+        });
+
+        cancelDeleteBtn.addEventListener('click', function() {
+            taskToDeleteId = null;
+            deleteModal.style.display = 'none';
+        });
+
+        searchFromDate.addEventListener('input', renderCompletedTasks);
+        searchToDate.addEventListener('input', renderCompletedTasks);
+        searchStaff.addEventListener('change', renderCompletedTasks);
+        searchType.addEventListener('change', renderCompletedTasks);
+
+        clearFiltersBtn.addEventListener('click', function() {
+            searchFromDate.value = '';
+            searchToDate.value = '';
+            searchType.value = '';
+            
+            if (userRole !== 'user') {
+                searchUnit.value = '';
+                searchStaff.value = '';
+                populateStaff('');
+                populateTypes('');
+            }
+            
+            renderCompletedTasks();
+        });
+
+        if (userRole === 'user' && currentUserData) {
+            searchUnit.value = currentUserData.unit;
+            populateStaff(currentUserData.unit, currentUsername);
+            populateTypes(currentUserData.unit);
+            searchUnit.disabled = true;
+            searchStaff.disabled = true;
+        } else {
+            populateStaff('');
+            populateTypes('');
+        }
+        
+        renderCompletedTasks();
+    })();
+</script>

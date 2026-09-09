@@ -1,0 +1,445 @@
+<div style="max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; padding: 10px; font-family: Tahoma, sans-serif;">
+    
+    <!-- العنوان الرئيسي -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 35px; margin-bottom: 5px;">📊</div>
+        <h2 style="font-size: 20px; color: #333; margin: 0; font-weight: bold;">التقارير والإحصائيات</h2>
+    </div>
+
+    <!-- إطار الفلترة -->
+    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <!-- الصف 1: من تاريخ / إلى تاريخ -->
+        <div style="display: flex; flex-direction: row !important; gap: 8px; margin-bottom: 10px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;"><label for="reportsFromDate" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">من تاريخ</label><input type="date" id="reportsFromDate" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;"></div>
+            <div style="flex: 1; width: 48%;"><label for="reportsToDate" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">إلى تاريخ</label><input type="date" id="reportsToDate" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;"></div>
+        </div>
+
+        <!-- الصف 2: الوحدة / الكوادر -->
+        <div style="display: flex; flex-direction: row !important; gap: 8px; margin-bottom: 10px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="reportsUnit" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">الوحدة</label>
+                <select id="reportsUnit" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">الكل</option>
+                    <option value="تصوير">تصوير</option>
+                    <option value="تصميم">تصميم</option>
+                    <option value="مونتاج">مونتاج</option>
+                    <option value="تحرير">تحرير</option>
+                    <option value="ناشر">ناشر</option>
+                    <option value="توثيق">توثيق</option>
+                    <option value="تطوع">تطوع</option>
+                </select>
+            </div>
+            <div style="flex: 1; width: 48%;">
+                <label for="reportsStaff" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">الكوادر</label>
+                <select id="reportsStaff" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">الكل</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- الصف 3: النوع / زر إلغاء الفلترة -->
+        <div style="display: flex; flex-direction: row !important; gap: 8px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="reportsType" style="display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #333;">النوع</label>
+                <select id="reportsType" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">الكل</option>
+                </select>
+            </div>
+            <div style="flex: 1; width: 48%; display: flex; align-items: flex-end;">
+                <button id="reportsClearFiltersBtn" style="width: 100%; height: 40px; background: #dc3545; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">❌ إلغاء الفلترة</button>
+            </div>
+        </div>
+
+        <!-- الصف 4: أزرار التصدير -->
+        <div style="display: flex; flex-direction: row !important; gap: 8px; flex-wrap: nowrap !important; margin-top: 10px;">
+            <button id="exportStatsBtn" style="flex: 1; width: 48%; background: #0066cc; color: #fff; border: none; height: 40px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📄 تصدير الإحصائيات</button>
+            <button id="exportTasksBtn" style="flex: 1; width: 48%; background: #28a745; color: #fff; border: none; height: 40px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">📋 تصدير الواجبات</button>
+        </div>
+    </div>
+
+    <!-- إحصائيات عدد واجبات الوحدات -->
+    <div id="unitsSection" style="margin-bottom: 20px;">
+        <div id="unitsHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <h3 style="font-size: 16px; color: #dc3545; margin: 0; font-weight: bold;">📁 إحصائيات عدد واجبات الوحدات</h3>
+            <span id="totalUnitsCount" style="font-size: 16px; font-weight: bold; color: #dc3545;">0</span>
+        </div>
+        <div style="border-bottom: 1px dashed #dc3545; margin-bottom: 10px;"></div>
+        <div id="unitsStats" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+
+    <!-- إحصائيات عدد واجبات الكوادر الإعلامية -->
+    <div id="staffSection" style="margin-bottom: 20px;">
+        <div id="staffHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <h3 style="font-size: 16px; color: #dc3545; margin: 0; font-weight: bold;">👥 إحصائيات عدد واجبات الكوادر الإعلامية</h3>
+            <span id="totalStaffCount" style="font-size: 16px; font-weight: bold; color: #dc3545;">0</span>
+        </div>
+        <div style="border-bottom: 1px dashed #dc3545; margin-bottom: 10px;"></div>
+        <div id="staffStats" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+</div>
+
+<!-- نافذة التأكيد للتصدير -->
+<div id="exportConfirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 5000;">
+    <div style="background: #fff; padding: 25px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="font-size: 50px; margin-bottom: 10px;">📄</div>
+        <h3 style="font-size: 18px; color: #333; margin: 0 0 10px 0; font-weight: bold;">تصدير إلى PDF</h3>
+        <p style="font-size: 13px; color: #666; margin: 0 0 20px 0;" id="exportModalText">سيتم تصدير البيانات إلى ملف PDF.</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="confirmExportBtn" style="width: 48%; height: 42px; background: #28a745; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">نعم، تصدير</button>
+            <button id="cancelExportBtn" style="width: 48%; height: 42px; background: #6c757d; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    try {
+        let completedTasks = (JSON.parse(localStorage.getItem('completedTasks')) || []).filter(t => t.id !== "placeholder_completed");
+        
+        const mediaStaff = JSON.parse(localStorage.getItem('mediaStaff')) || [];
+        const currentUsername = localStorage.getItem('currentUser') || '';
+        const currentUserData = mediaStaff.find(s => s.name === currentUsername);
+        const userRole = currentUserData ? currentUserData.role : 'user';
+        
+        const unitStaffData = {};
+        const allUnits = ['تصوير', 'تصميم', 'مونتاج', 'تحرير', 'ناشر', 'توثيق', 'تطوع'];
+        const unitTypeMapping = {
+            "تصوير": ["نشر", "أرشيف"],
+            "تصميم": ["نشر", "طباعة"],
+            "مونتاج": ["نشر"],
+            "تحرير": ["نشر", "أرشيف"],
+            "ناشر": ["نشر"],
+            "توثيق": ["أرشيف"],
+            "تطوع": ["نشر", "أرشيف"]
+        };
+        
+        mediaStaff.forEach(member => {
+            if (!unitStaffData[member.unit]) unitStaffData[member.unit] = [];
+            if (!unitStaffData[member.unit].includes(member.name)) unitStaffData[member.unit].push(member.name);
+        });
+
+        const reportsFromDate = document.getElementById('reportsFromDate');
+        const reportsToDate = document.getElementById('reportsToDate');
+        const reportsUnit = document.getElementById('reportsUnit');
+        const reportsStaff = document.getElementById('reportsStaff');
+        const reportsType = document.getElementById('reportsType');
+        const reportsClearFiltersBtn = document.getElementById('reportsClearFiltersBtn');
+        const unitsSection = document.getElementById('unitsSection');
+        const unitsStats = document.getElementById('unitsStats');
+        const staffSection = document.getElementById('staffSection');
+        const staffStats = document.getElementById('staffStats');
+        const totalUnitsCount = document.getElementById('totalUnitsCount');
+        const totalStaffCount = document.getElementById('totalStaffCount');
+        const exportStatsBtn = document.getElementById('exportStatsBtn');
+        const exportTasksBtn = document.getElementById('exportTasksBtn');
+        const exportConfirmModal = document.getElementById('exportConfirmModal');
+        const exportModalText = document.getElementById('exportModalText');
+        const confirmExportBtn = document.getElementById('confirmExportBtn');
+        const cancelExportBtn = document.getElementById('cancelExportBtn');
+
+        let currentExportType = '';
+
+        // 1. دوال تعبئة القوائم
+        function populateStaff(selectedUnit, lockedStaff) {
+            if (!reportsStaff) return;
+            reportsStaff.innerHTML = '';
+            if (lockedStaff) {
+                const opt = document.createElement('option');
+                opt.value = lockedStaff;
+                opt.textContent = lockedStaff;
+                reportsStaff.appendChild(opt);
+                reportsStaff.value = lockedStaff;
+            } else {
+                const allOpt = document.createElement('option');
+                allOpt.value = ''; allOpt.textContent = 'الكل';
+                reportsStaff.appendChild(allOpt);
+                if (selectedUnit && unitStaffData[selectedUnit]) {
+                    unitStaffData[selectedUnit].forEach(staffName => {
+                        const opt = document.createElement('option');
+                        opt.value = staffName; opt.textContent = staffName;
+                        reportsStaff.appendChild(opt);
+                    });
+                }
+            }
+        }
+
+        function populateTypes(selectedUnit) {
+            if (!reportsType) return;
+            reportsType.innerHTML = '<option value="">الكل</option>';
+            if (selectedUnit && unitTypeMapping[selectedUnit]) {
+                unitTypeMapping[selectedUnit].forEach(type => {
+                    const opt = document.createElement('option');
+                    opt.value = type; opt.textContent = type;
+                    reportsType.appendChild(opt);
+                });
+            }
+        }
+
+        if (reportsUnit) {
+            reportsUnit.addEventListener('change', function() {
+                const selectedUnit = this.value;
+                populateStaff(selectedUnit, null);
+                populateTypes(selectedUnit);
+                renderReports();
+            });
+        }
+
+        // 2. دوال مساعدة
+        function formatTime12(timeString) {
+            if (!timeString) return 'غير محدد';
+            const [hours, minutes] = timeString.split(':');
+            let h = parseInt(hours);
+            const m = minutes || '00';
+            const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+            h = h % 12; h = h ? h : 12;
+            return `${h}:${m} ${ampm}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'غير محدد';
+            return dateString.replace(/-/g, '/');
+        }
+
+        function getCurrentDateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'مساءً' : 'صباحاً';
+            hours = hours % 12; hours = hours ? hours : 12;
+            const formattedTime = `${hours}:${minutes} ${ampm}`;
+            const formattedDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+            return `${formattedDate} - ${formattedTime}`;
+        }
+
+        // 3. دالة موحدة للفلترة (تُستخدم للعرض والتصدير)
+        function getFilteredTasks() {
+            const fromDate = reportsFromDate ? reportsFromDate.value : '';
+            const toDate = reportsToDate ? reportsToDate.value : '';
+            const unit = reportsUnit ? reportsUnit.value : '';
+            const staff = reportsStaff ? reportsStaff.value : '';
+            const type = reportsType ? reportsType.value : '';
+
+            return completedTasks.filter(task => {
+                if (userRole === 'user' && !(task.staff && task.staff.includes(currentUsername))) return false;
+                if (fromDate && task.date < fromDate) return false;
+                if (toDate && task.date > toDate) return false;
+                if (unit && task.unit !== unit) return false;
+                if (staff && !(task.staff && task.staff.includes(staff))) return false;
+                if (type && task.type !== type) return false;
+                return true;
+            });
+        }
+
+        // 4. دالة العرض في الواجهة
+        function renderReports() {
+            if (!unitsStats || !staffStats) return;
+            
+            const allTasks = getFilteredTasks();
+
+            if (userRole === 'admin') {
+                if (reportsStaff && reportsStaff.value) {
+                    unitsSection.style.display = 'none';
+                } else {
+                    unitsSection.style.display = 'block';
+                    const unitsToShow = reportsUnit && reportsUnit.value ? [reportsUnit.value] : allUnits;
+                    const unitStats = {};
+                    unitsToShow.forEach(unitName => unitStats[unitName] = { total: 0, نشر: 0, طباعة: 0, أرشيف: 0 });
+                    allTasks.forEach(t => { if (unitStats[t.unit]) { unitStats[t.unit].total++; if (t.type === 'نشر') unitStats[t.unit].نشر++; else if (t.type === 'طباعة') unitStats[t.unit].طباعة++; else unitStats[t.unit].أرشيف++; } });
+                    
+                    let unitsHtml = '';
+                    Object.keys(unitStats).forEach(unitName => {
+                        const d = unitStats[unitName];
+                        unitsHtml += `<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>🏢 ${unitName}</strong><span style="color:#dc3545;font-weight:bold;">${d.total} واجب</span></div><div style="display:flex;gap:8px;margin-top:8px;"><span>📁 نشر: ${d.نشر}</span><span>🖨️ طباعة: ${d.طباعة}</span><span>🗂️ أرشيف: ${d.أرشيف}</span></div></div>`;
+                    });
+                    unitsStats.innerHTML = unitsHtml;
+                    totalUnitsCount.textContent = `${allTasks.length} واجب`;
+                }
+
+                staffSection.style.display = 'block';
+                const staffStatsData = {};
+                const staffToShow = reportsStaff && reportsStaff.value ? [reportsStaff.value] : (reportsUnit && reportsUnit.value ? (unitStaffData[reportsUnit.value] || []) : mediaStaff.map(m => m.name));
+                staffToShow.forEach(name => staffStatsData[name] = { total: 0, نشر: 0, طباعة: 0, أرشيف: 0 });
+                allTasks.forEach(t => { if (t.staff) { t.staff.forEach(n => { if (staffStatsData[n]) { staffStatsData[n].total++; if (t.type === 'نشر') staffStatsData[n].نشر++; else if (t.type === 'طباعة') staffStatsData[n].طباعة++; else staffStatsData[n].أرشيف++; } }); } });
+
+                let staffHtml = '';
+                Object.keys(staffStatsData).sort((a,b) => a.localeCompare(b, 'ar')).forEach(name => {
+                    const d = staffStatsData[name];
+                    staffHtml += `<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>👤 ${name}</strong><span style="color:#dc3545;font-weight:bold;">${d.total} واجب</span></div><div style="display:flex;gap:8px;margin-top:8px;"><span>📁 نشر: ${d.نشر}</span><span>🖨️ طباعة: ${d.طباعة}</span><span>🗂️ أرشيف: ${d.أرشيف}</span></div></div>`;
+                });
+                staffStats.innerHTML = staffHtml;
+                totalStaffCount.textContent = `${allTasks.length} واجب`;
+            } else {
+                unitsSection.style.display = 'none';
+                staffSection.style.display = 'block';
+                
+                const data = { total: 0, نشر: 0, طباعة: 0, أرشيف: 0 };
+                allTasks.forEach(t => { if (t.staff && t.staff.includes(currentUsername)) { data.total++; if (t.type === 'نشر') data.نشر++; else if (t.type === 'طباعة') data.طباعة++; else data.أرشيف++; } });
+                staffStats.innerHTML = `<div style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong>👤 ${currentUsername}</strong><span style="color:#dc3545;font-weight:bold;">${data.total} واجب</span></div><div style="display:flex;gap:8px;margin-top:8px;"><span>📁 نشر: ${data.نشر}</span><span>🖨️ طباعة: ${data.طباعة}</span><span>🗂️ أرشيف: ${data.أرشيف}</span></div></div>`;
+            }
+        }
+
+        // 5. أحداث البحث التلقائي
+        if (reportsFromDate) reportsFromDate.addEventListener('input', renderReports);
+        if (reportsToDate) reportsToDate.addEventListener('input', renderReports);
+        if (reportsStaff) reportsStaff.addEventListener('change', renderReports);
+        if (reportsType) reportsType.addEventListener('change', renderReports);
+
+        if (reportsClearFiltersBtn) {
+            reportsClearFiltersBtn.addEventListener('click', function() {
+                if (reportsFromDate) reportsFromDate.value = '';
+                if (reportsToDate) reportsToDate.value = '';
+                if (reportsType) reportsType.value = '';
+                if (userRole !== 'user' && reportsUnit) {
+                    reportsUnit.value = '';
+                    populateStaff('', null);
+                    populateTypes('');
+                }
+                renderReports();
+            });
+        }
+
+        // 6. دوال التصدير
+        function openExportModal(type) {
+            currentExportType = type;
+            if (type === 'stats') exportModalText.textContent = 'سيتم تصدير الإحصائيات إلى ملف PDF.';
+            else exportModalText.textContent = 'سيتم تصدير الواجبات إلى ملف PDF.';
+            exportConfirmModal.style.display = 'flex';
+        }
+
+        if (exportStatsBtn) exportStatsBtn.addEventListener('click', function() { openExportModal('stats'); });
+        if (exportTasksBtn) exportTasksBtn.addEventListener('click', function() { openExportModal('tasks'); });
+        if (cancelExportBtn) cancelExportBtn.addEventListener('click', function() { exportConfirmModal.style.display = 'none'; });
+        if (confirmExportBtn) {
+            confirmExportBtn.addEventListener('click', function() {
+                exportConfirmModal.style.display = 'none';
+                if (currentExportType === 'stats') exportStatisticsToPDF();
+                else exportTasksToPDF();
+            });
+        }
+
+        function exportStatisticsToPDF() {
+            const allTasks = getFilteredTasks();
+            const unit = reportsUnit ? reportsUnit.value : '';
+            const staff = reportsStaff ? reportsStaff.value : '';
+            const type = reportsType ? reportsType.value : '';
+
+            let unitsSectionHtml = '';
+            if (!staff) {
+                const unitsToShow = unit ? [unit] : allUnits;
+                const unitStats = {};
+                unitsToShow.forEach(unitName => unitStats[unitName] = { total: 0, نشر: 0, طباعة: 0, أرشيف: 0 });
+                allTasks.forEach(t => { if (unitStats[t.unit]) { unitStats[t.unit].total++; if (t.type === 'نشر') unitStats[t.unit].نشر++; else if (t.type === 'طباعة') unitStats[t.unit].طباعة++; else unitStats[t.unit].أرشيف++; } });
+
+                let unitsHtml = '';
+                Object.keys(unitStats).forEach(unitName => {
+                    const d = unitStats[unitName];
+                    unitsHtml += `<div style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"><strong style="font-size: 16px;">🏢 ${unitName}</strong> (${d.total} واجب)<br>📁 نشر: ${d.نشر} | 🖨️ طباعة: ${d.طباعة} | 🗂️ أرشيف: ${d.أرشيف}</div>`;
+                });
+
+                unitsSectionHtml = `
+                    <h2 style="font-size: 18px; color: #dc3545; border-bottom: 1px dashed #dc3545; padding-bottom: 5px;">📁 إحصائيات الوحدات</h2>
+                    ${unitsHtml}
+                `;
+            }
+
+            const staffStatsData = {};
+            const staffToShow = staff ? [staff] : (unit ? (unitStaffData[unit] || []) : mediaStaff.map(m => m.name));
+            staffToShow.forEach(name => staffStatsData[name] = { total: 0, نشر: 0, طباعة: 0, أرشيف: 0 });
+            allTasks.forEach(t => { if (t.staff) { t.staff.forEach(n => { if (staffStatsData[n]) { staffStatsData[n].total++; if (t.type === 'نشر') staffStatsData[n].نشر++; else if (t.type === 'طباعة') staffStatsData[n].طباعة++; else staffStatsData[n].أرشيف++; } }); } });
+
+            let staffHtml = '';
+            Object.keys(staffStatsData).sort((a,b) => a.localeCompare(b, 'ar')).forEach(name => {
+                const d = staffStatsData[name];
+                staffHtml += `<div style="margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"><strong style="font-size: 16px; color: #dc3545;">👤 ${name}</strong> (${d.total} واجب)<br>📁 نشر: ${d.نشر} | 🖨️ طباعة: ${d.طباعة} | 🗂️ أرشيف: ${d.أرشيف}</div>`;
+            });
+
+            let content = `
+            <h1 style="text-align: center; font-size: 24px; color: #333;">إحصائيات عدد واجبات وحدات الإعلام المركزي</h1>
+            <div style="margin-bottom: 20px; font-size: 14px;">
+                <p><strong>أسم الوحدة:</strong> ${unit || 'كل الوحدات'} | <strong>الكوادر:</strong> ${staff || 'كل الكوادر'} | <strong>النوع:</strong> ${type || 'كل الأنواع'}</p>
+                <p><strong>تاريخ الطباعة:</strong> ${getCurrentDateTime()}</p>
+            </div>
+            <div style="border-bottom: 2px solid #333; margin-bottom: 10px;"></div>
+            ${unitsSectionHtml}
+            <h2 style="font-size: 18px; color: #dc3545; border-bottom: 1px dashed #dc3545; padding-bottom: 5px;">👥 إحصائيات الكوادر</h2>
+            ${staffHtml}
+            `;
+
+            printToPDF(content);
+        }
+
+        function exportTasksToPDF() {
+            const allTasks = getFilteredTasks().sort((a, b) => b.date.localeCompare(a.date));
+            const unit = reportsUnit ? reportsUnit.value : '';
+            const staff = reportsStaff ? reportsStaff.value : '';
+            const type = reportsType ? reportsType.value : '';
+
+            let tasksHtml = '';
+            if (allTasks.length === 0) {
+                tasksHtml = '<p style="text-align: center;">لا توجد واجبات.</p>';
+            } else {
+                allTasks.forEach((task, index) => {
+                    let borderColor = '#333';
+                    if (task.type === 'نشر') borderColor = '#dc3545';
+                    else if (task.type === 'طباعة') borderColor = '#28a745';
+                    else if (task.type === 'أرشيف') borderColor = '#ffc107';
+
+                    tasksHtml += `
+                    <div style="border: 2px solid ${borderColor}; border-radius: 6px; padding: 8px; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid;">
+                        <div style="text-align: center; border-bottom: 1px dashed #333; padding-bottom: 5px; margin-bottom: 5px;">
+                            <strong style="font-size: 15px;">${index + 1}. ${task.title}</strong>
+                        </div>
+                        <p style="margin: 3px 0; line-height: 1.4;"><strong>الوحدة:</strong> ${task.unit} | <strong>النوع:</strong> ${task.type}</p>
+                        <p style="margin: 3px 0; line-height: 1.4;"><strong>وقت التنفيذ:</strong> ${formatTime12(task.time)} | <strong>تاريخ التنفيذ:</strong> ${formatDate(task.date)}</p>
+                        <p style="margin: 3px 0; line-height: 1.4;"><strong>الموقع:</strong> ${task.location || 'غير محدد'}</p>
+                        <p style="margin: 3px 0; line-height: 1.4;"><strong style="color: red;">الكوادر:</strong> ${task.staff ? task.staff.join('، ') : 'لا يوجد'}</p>
+                    </div>`;
+                });
+            }
+
+            let content = `
+            <h1 style="text-align: center; font-size: 20px; color: #333; margin-bottom: 10px;">واجبات وحدات الإعلام المركزي</h1>
+            <div style="margin-bottom: 10px; font-size: 13px;">
+                <p style="margin: 2px 0;"><strong>أسم الوحدة:</strong> ${unit || 'كل الوحدات'} | <strong>النوع:</strong> ${type || 'كل الأنواع'} | <strong>الكوادر:</strong> ${staff || 'كل الكوادر'}</p>
+                <p style="margin: 2px 0;"><strong>الفترة الزمنية:</strong> ${(reportsFromDate && reportsFromDate.value) || (reportsToDate && reportsToDate.value) ? `${reportsFromDate ? reportsFromDate.value : 'البداية'} إلى ${reportsToDate ? reportsToDate.value : 'النهاية'}` : 'كل الفترات'} | <strong>تاريخ الطباعة:</strong> ${getCurrentDateTime()}</p>
+            </div>
+            <div style="border-bottom: 2px solid #333; margin-bottom: 10px;"></div>
+            ${tasksHtml}
+            `;
+
+            printToPDF(content);
+        }
+
+        function printToPDF(content) {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>تصدير PDF</title><style>body { font-family: 'Tahoma', Arial, sans-serif; padding: 10px; direction: rtl; text-align: right; } h1 { color: #333; } h2 { color: #0066cc; }</style></head><body>${content}</body></html>`);
+            printWindow.document.close();
+            setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+        }
+
+        // 7. التهيئة
+        if (userRole === 'user') {
+            if (currentUserData) {
+                reportsUnit.innerHTML = '';
+                const optU = document.createElement('option');
+                optU.value = currentUserData.unit; optU.textContent = currentUserData.unit;
+                reportsUnit.appendChild(optU);
+                reportsUnit.value = currentUserData.unit;
+                reportsUnit.disabled = true;
+
+                populateStaff(currentUserData.unit, currentUsername);
+                reportsStaff.disabled = true;
+
+                populateTypes(currentUserData.unit);
+            }
+        } else {
+            populateStaff('', null);
+            populateTypes('');
+        }
+        
+        renderReports();
+    } catch (error) {
+        console.error('خطأ في تحميل واجهة التقارير:', error);
+    }
+})();
+</script>

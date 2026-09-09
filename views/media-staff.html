@@ -1,0 +1,281 @@
+<div style="max-width: 800px; margin: 0 auto; direction: rtl; text-align: right; padding: 15px; font-family: Tahoma, sans-serif;">
+    
+    <h2 style="font-size: 18px; margin-bottom: 20px; color: #333; font-weight: bold;">👥 إدارة الكوادر الإعلامية</h2>
+
+    <!-- نموذج إضافة / تعديل الكادر -->
+    <div style="background: #fff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" id="staffFormBox">
+        <h3 id="formTitle" style="font-size: 15px; margin-bottom: 15px; color: #0066cc; font-weight: bold;">إضافة كادر جديد</h3>
+        
+        <div style="display: flex; flex-direction: row !important; justify-content: space-between; gap: 10px; margin-bottom: 15px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="staffName" style="display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #333;">الاسم</label>
+                <input type="text" id="staffName" placeholder="أدخل اسم الكادر" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1; width: 48%;">
+                <label for="staffPassword" style="display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #333;">كلمة السر</label>
+                <input type="password" id="staffPassword" placeholder="أدخل كلمة السر" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: row !important; justify-content: space-between; gap: 10px; margin-bottom: 15px; flex-wrap: nowrap !important;">
+            <div style="flex: 1; width: 48%;">
+                <label for="staffUnit" style="display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #333;">الوحدة</label>
+                <select id="staffUnit" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="">اختر الوحدة</option>
+                    <option value="تصوير">تصوير</option>
+                    <option value="تصميم">تصميم</option>
+                    <option value="مونتاج">مونتاج</option>
+                    <option value="تحرير">تحرير</option>
+                    <option value="ناشر">ناشر</option>
+                    <option value="توثيق">توثيق</option>
+                    <option value="تطوع">تطوع</option>
+                </select>
+            </div>
+            <div style="flex: 1; width: 48%;">
+                <label for="staffRole" style="display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #333;">الصلاحية</label>
+                <select id="staffRole" style="width: 100%; height: 40px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <option value="user">مستخدم</option>
+                    <option value="admin">مدير النظام</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: row !important; justify-content: space-between; gap: 10px; flex-wrap: nowrap !important;">
+            <button type="button" id="saveStaffBtn" style="background: #0066cc; color: #fff; border: none; height: 48px; padding: 0 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; box-sizing: border-box; transition: width 0.3s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💾 حفظ</button>
+            <button type="button" id="cancelEditBtn" style="background: #e0e0e0; color: #333; border: none; height: 48px; padding: 0 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; box-sizing: border-box; display: none; transition: width 0.3s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">❌ إلغاء التعديل</button>
+        </div>
+    </div>
+
+    <!-- عرض الكوادر -->
+    <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 15px; margin-bottom: 15px; color: #333; font-weight: bold;">
+            📋 الكوادر الحالية (<span id="staffCount">0</span>)
+        </h3>
+        
+        <div id="staffListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- سيتم عرض الكوادر هنا -->
+        </div>
+    </div>
+</div>
+
+<!-- نافذة الحفظ المميزة -->
+<div id="saveSuccessModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 5000;">
+    <div style="background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="font-size: 60px; color: #28a745; margin-bottom: 10px;">✅</div>
+        <h3 style="font-size: 18px; color: #333; margin: 0 0 10px 0; font-weight: bold;">تم الحفظ بنجاح</h3>
+        <p style="font-size: 13px; color: #666; margin: 0 0 20px 0;">تم حفظ بيانات الكادر بنجاح.</p>
+        <button id="closeSaveModalBtn" style="width: 100%; height: 45px; background: #0066cc; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">حسناً</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const MAIN_ADMIN = {
+            id: 'main-admin',
+            name: 'سجاد مهدي',
+            password: '1234',
+            unit: 'توثيق',
+            role: 'admin'
+        };
+
+        function getStaff() {
+            let staff = JSON.parse(localStorage.getItem('mediaStaff')) || [];
+            if (!staff.some(s => s.id === MAIN_ADMIN.id)) {
+                staff.unshift(MAIN_ADMIN);
+                localStorage.setItem('mediaStaff', JSON.stringify(staff));
+            }
+            return staff;
+        }
+
+        function saveStaff(staff) {
+            if (!staff.some(s => s.id === MAIN_ADMIN.id)) {
+                staff.unshift(MAIN_ADMIN);
+            }
+            localStorage.setItem('mediaStaff', JSON.stringify(staff));
+        }
+
+        const staffName = document.getElementById('staffName');
+        const staffPassword = document.getElementById('staffPassword');
+        const staffUnit = document.getElementById('staffUnit');
+        const staffRole = document.getElementById('staffRole');
+        const saveStaffBtn = document.getElementById('saveStaffBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const formTitle = document.getElementById('formTitle');
+        const staffListContainer = document.getElementById('staffListContainer');
+        const staffCount = document.getElementById('staffCount');
+        
+        const saveSuccessModal = document.getElementById('saveSuccessModal');
+        const closeSaveModalBtn = document.getElementById('closeSaveModalBtn');
+
+        let editingStaffId = null;
+
+        function resetFormButtons() {
+            saveStaffBtn.style.width = '100%';
+            cancelEditBtn.style.width = '0%';
+            cancelEditBtn.style.display = 'none';
+        }
+
+        function showEditButtons() {
+            saveStaffBtn.style.width = '48%';
+            cancelEditBtn.style.width = '48%';
+            cancelEditBtn.style.display = 'block';
+        }
+
+        function renderStaffList() {
+            const staff = getStaff();
+            staff.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            staffCount.textContent = staff.length;
+
+            if (staff.length === 0) {
+                staffListContainer.innerHTML = '<p style="text-align: center; color: #777; padding: 20px;">لا توجد كوادر حالياً.</p>';
+                return;
+            }
+
+            let html = '';
+            staff.forEach((member, index) => {
+                const isMainAdmin = member.id === MAIN_ADMIN.id;
+                const itemBorder = isMainAdmin ? '1px solid #dc3545' : '1px solid #e0e0e0';
+                
+                html += `
+                    <div style="background: #fff; border: ${itemBorder}; border-radius: 8px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 13px; color: #333;">
+                                <strong>${index + 1}. ${member.name}</strong> 
+                                ${isMainAdmin ? '<span style="background: #ffc107; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px;">مدير رئيسي</span>' : ''}
+                            </span>
+                            <span style="font-size: 12px; color: #666;">${member.unit}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 8px;">
+                            <button onclick="editStaff('${member.id}')" style="background: #ffc107; color: #000; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">✏️ تعديل</button>
+                            <button onclick="deleteStaff('${member.id}')" ${isMainAdmin ? 'disabled style="background: #ccc; color: #666; cursor: not-allowed;"' : 'style="background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;"'}>🗑️ حذف</button>
+                        </div>
+                    </div>
+                `;
+            });
+            staffListContainer.innerHTML = html;
+        }
+
+        window.editStaff = function(id) {
+            const staff = getStaff();
+            const member = staff.find(s => String(s.id) === String(id));
+            if (!member) return;
+
+            editingStaffId = member.id;
+            staffName.value = member.name;
+            staffPassword.value = member.password;
+            staffUnit.value = member.unit;
+            staffRole.value = member.role;
+
+            formTitle.textContent = '✏️ تعديل الكادر: ' + member.name;
+            formTitle.style.color = '#ffc107';
+            saveStaffBtn.textContent = '💾 تحديث البيانات';
+            showEditButtons();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.deleteStaff = async function(id) {
+            const staff = getStaff();
+            const member = staff.find(s => String(s.id) === String(id));
+            if (!member) return;
+
+            if (member.id === MAIN_ADMIN.id) {
+                alert('⚠️ لا يمكن حذف مدير النظام الرئيسي (سجاد مهدي)!');
+                return;
+            }
+
+            if (confirm('هل أنت متأكد من حذف الكادر: ' + member.name + '؟')) {
+                const updatedStaff = staff.filter(s => String(s.id) !== String(id));
+                saveStaff(updatedStaff);
+                renderStaffList();
+                
+                if (window.appInstance && typeof window.appInstance.syncWithIndicator === 'function') {
+                    await window.appInstance.syncWithIndicator();
+                }
+                
+                alert('تم حذف الكادر بنجاح.');
+            }
+        };
+
+        saveStaffBtn.addEventListener('click', async function() {
+            const name = staffName.value.trim();
+            const password = staffPassword.value.trim();
+            const unit = staffUnit.value;
+            const role = staffRole.value;
+
+            if (!name || !password || !unit || !role) {
+                alert('⚠️ يرجى تعبئة جميع الحقول المطلوبة!');
+                return;
+            }
+
+            const staff = getStaff();
+
+            if (editingStaffId) {
+                const index = staff.findIndex(s => String(s.id) === String(editingStaffId));
+                if (index !== -1) {
+                    if (staff[index].id === MAIN_ADMIN.id && role !== 'admin') {
+                        alert('⚠️ لا يمكن تغيير صلاحية مدير النظام الرئيسي!');
+                        return;
+                    }
+
+                    staff[index] = { ...staff[index], name, password, unit, role };
+                    
+                    if (staff[index].id === MAIN_ADMIN.id) {
+                        staff[index].name = MAIN_ADMIN.name;
+                        staff[index].password = MAIN_ADMIN.password;
+                        staff[index].unit = MAIN_ADMIN.unit;
+                        staff[index].role = MAIN_ADMIN.role;
+                    }
+                }
+
+                editingStaffId = null;
+                formTitle.textContent = 'إضافة كادر جديد';
+                formTitle.style.color = '#0066cc';
+                saveStaffBtn.textContent = '💾 حفظ';
+                resetFormButtons();
+            } else {
+                const newStaff = {
+                    id: Date.now().toString(),
+                    name,
+                    password,
+                    unit,
+                    role
+                };
+                staff.push(newStaff);
+            }
+
+            saveStaff(staff);
+            renderStaffList();
+            
+            if (window.appInstance && typeof window.appInstance.syncWithIndicator === 'function') {
+                await window.appInstance.syncWithIndicator();
+            }
+            
+            saveSuccessModal.style.display = 'flex';
+        });
+
+        closeSaveModalBtn.addEventListener('click', function() {
+            saveSuccessModal.style.display = 'none';
+            staffName.value = '';
+            staffPassword.value = '';
+            staffUnit.value = '';
+            staffRole.value = 'user';
+        });
+
+        cancelEditBtn.addEventListener('click', function() {
+            editingStaffId = null;
+            formTitle.textContent = 'إضافة كادر جديد';
+            formTitle.style.color = '#0066cc';
+            saveStaffBtn.textContent = '💾 حفظ';
+            resetFormButtons();
+            
+            staffName.value = '';
+            staffPassword.value = '';
+            staffUnit.value = '';
+            staffRole.value = 'user';
+        });
+
+        staffRole.value = 'user';
+        resetFormButtons();
+        renderStaffList();
+    })();
+</script>

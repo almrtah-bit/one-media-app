@@ -1,0 +1,227 @@
+/* منع تحديد النصوص والخلفية الزرقاء */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-user-drag: none;
+}
+
+/* السماح بالكتابة في الحقول */
+input, select, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+*:focus { outline: none !important; }
+
+/* الخطوط */
+body {
+    font-family: 'Tahoma', 'Segoe UI', 'Arial', sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 120px;
+}
+
+input, select, textarea { font-size: 16px !important; }
+
+/* ✅ أنماط الوضع الفاتح (الافتراضي) */
+:root {
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+    --card-bg: #ffffff;
+    --card-border: #e0e0e0;
+    --input-bg: #ffffff;
+    --input-border: #ccc;
+    --label-color: #333;
+    --muted-text: #666;
+}
+
+/* ✅ أنماط الوضع الداكن */
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --card-border: #444;
+    --input-bg: #2a2a2a;
+    --input-border: #555;
+    --label-color: #f0f0f0;
+    --muted-text: #a0a0a0;
+}
+
+/* ✅ تطبيق المتغيرات على الصفحة */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+div, form, section, .modal-content, .btn-save, .btn-cancel {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ✅ جعل الخلفية داكنة للعناصر الرئيسية */
+[data-theme="dark"] body {
+    background-color: #121212;
+}
+
+[data-theme="dark"] div[style*="background: #fff"], 
+[data-theme="dark"] div[style*="background: #ffffff"],
+[data-theme="dark"] div[style*="background:#fff"] {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .top-navbar {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .step-icon {
+    background-color: #2a2a2a !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #2a2a2a !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+/* ✅ تعديل لون العناوين والتسميات في الوضع الداكن */
+[data-theme="dark"] label,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] span,
+[data-theme="dark"] p,
+[data-theme="dark"] strong,
+[data-theme="dark"] b {
+    color: var(--label-color) !important;
+}
+
+/* ✅ تعديل لون النصوص الثانوية في الوضع الداكن */
+[data-theme="dark"] .placeholder-text,
+[data-theme="dark"] .step-text,
+[data-theme="dark"] .form-row label,
+[data-theme="dark"] .modal-actions button,
+[data-theme="dark"] .btn-cancel {
+    color: var(--muted-text) !important;
+}
+
+/* ✅ تعديل الإطارات والحدود في الوضع الداكن */
+[data-theme="dark"] div[style*="border: 1px solid #ddd"],
+[data-theme="dark"] div[style*="border: 1px solid #eee"],
+[data-theme="dark"] div[style*="border: 1px solid #e0e0e0"],
+[data-theme="dark"] div[style*="border: 1px solid #ccc"],
+[data-theme="dark"] div[style*="border:1px solid #e0e0e0"] {
+    border-color: #444 !important;
+}
+
+/* ✅ تعديل إطارات الحقول (Input/Select) في الوضع الداكن */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    border-color: #555 !important;
+}
+
+/* ✅ تعديل لون الأزرار الثانوية (مثل إلغاء) */
+[data-theme="dark"] .btn-cancel {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+/* ✅ تعديل لون الخلفيات الفاتحة الأخرى */
+[data-theme="dark"] .staff-checkbox-grid,
+[data-theme="dark"] .staff-item,
+[data-theme="dark"] .form-section-box {
+    background-color: #1e1e1e !important;
+    border-color: #444 !important;
+}
+
+/* ✅ تعديل ألوان نصوص الكوادر في الوضع الداكن */
+[data-theme="dark"] .staff-item {
+    color: #e0e0e0;
+}
+
+/* ✅ تعديل ألوان الأيقونات في الوضع الداكن */
+[data-theme="dark"] .step-icon {
+    background-color: #2a2a2a !important;
+    border-color: #555 !important;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .step.active .step-icon {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .step.completed .step-icon {
+    background-color: #2a2a2a !important;
+    border-color: #555 !important;
+    color: #e0e0e0;
+}
+
+/* ✅ تعديل الإطار العلوي في واجهة جديد (الوضع الداكن) */
+[data-theme="dark"] div[style*="background: #f0f7ff"] {
+    background-color: #1e1e1e !important;
+    border-color: #0066cc !important;
+}
+
+[data-theme="dark"] div[style*="background: #f0f7ff"] span {
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] div[style*="background: #f0f7ff"] span[style*="color: #0066cc"] {
+    color: #4da3ff !important;
+}
+
+[data-theme="dark"] div[style*="background: #f0f7ff"] span[style*="color: #dc3545"] {
+    color: #ff6b6b !important;
+}
+
+/* ✅ إصلاح ألوان الخلفيات المخصصة في إعدادات التطبيق */
+[data-theme="dark"] div[style*="background: #fffdf5"],
+[data-theme="dark"] div[style*="background: #fff5f5"],
+[data-theme="dark"] div[style*="background: #f5fff5"] {
+    background-color: #1e1e1e !important;
+}
+
+[data-theme="dark"] div[style*="background: #fffdf5"] span,
+[data-theme="dark"] div[style*="background: #fff5f5"] span,
+[data-theme="dark"] div[style*="background: #f5fff5"] span,
+[data-theme="dark"] div[style*="background: #fffdf5"] label,
+[data-theme="dark"] div[style*="background: #fff5f5"] label,
+[data-theme="dark"] div[style*="background: #f5fff5"] label,
+[data-theme="dark"] div[style*="background: #fffdf5"] strong,
+[data-theme="dark"] div[style*="background: #fff5f5"] strong,
+[data-theme="dark"] div[style*="background: #f5fff5"] strong,
+[data-theme="dark"] div[style*="background: #fffdf5"] h3,
+[data-theme="dark"] div[style*="background: #fff5f5"] h3,
+[data-theme="dark"] div[style*="background: #f5fff5"] h3,
+[data-theme="dark"] div[style*="background: #fffdf5"] p,
+[data-theme="dark"] div[style*="background: #fff5f5"] p,
+[data-theme="dark"] div[style*="background: #f5fff5"] p {
+    color: #f0f0f0 !important;
+}
+
+/* ✅ إصلاح القوائم المنسدلة داخل إعدادات التطبيق في الوضع الداكن */
+[data-theme="dark"] div[style*="background: #fffdf5"] select,
+[data-theme="dark"] div[style*="background: #fff5f5"] select,
+[data-theme="dark"] div[style*="background: #f5fff5"] select {
+    background-color: #2a2a2a !important;
+    color: #f0f0f0 !important;
+    border-color: #555 !important;
+}

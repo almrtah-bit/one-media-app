@@ -1,0 +1,233 @@
+<div style="max-width: 700px; margin: 0 auto; direction: rtl; text-align: right; padding: 15px; font-family: Tahoma, sans-serif;">
+    
+    <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #fff; text-align: center; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <h1 style="font-size: 20px; color: #333; margin: 0 0 10px 0;">
+            مرحبا بك 👋 : <span id="welcomeUsername" style="color: #28a745;">...</span>
+        </h1>
+        
+        <div id="loginTimeDisplay" style="font-size: 13px; color: #666; margin-top: 10px; text-align: center;">
+            🕒 وقت تسجيل الدخول : ...
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h3 id="pendingHeader" style="font-size: 16px; color: #0066cc; font-weight: bold;">
+            واجبات بانتظار موافقة مدير النظام (0)
+        </h3>
+    </div>
+
+    <div id="tasksListContainer" style="display: flex; flex-direction: column; gap: 20px;"></div>
+
+    <div id="customDeleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+        <div style="background: #fff; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <p style="font-size: 15px; color: #333; margin-bottom: 20px; font-weight: 600;">هل أنت متأكد من رغبتك في حذف هذا الواجب نهائياً؟</p>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <button id="confirmDeleteBtn" style="background: #dc3545; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">نعم، حذف</button>
+                <button id="cancelDeleteBtn" style="background: #6c757d; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="customApproveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <div style="font-size: 60px; color: #28a745; margin-bottom: 10px;">✔️</div>
+        <h3 style="font-size: 18px; color: #333; margin: 0 0 10px 0; font-weight: bold;">تم اعتماد الواجب من قبل مدير النظام</h3>
+        <h2 id="approvedTaskTitle" style="font-size: 18px; color: #0066cc; margin: 0 0 20px 0; font-weight: bold;"></h2>
+        <button id="closeApproveBtn" style="width: 100%; height: 48px; background: #0066cc; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600;">حسناً</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const currentUsername = localStorage.getItem('currentUser') || 'زائر';
+        document.getElementById('welcomeUsername').textContent = currentUsername;
+        
+        const mediaStaff = JSON.parse(localStorage.getItem('mediaStaff')) || [];
+        const currentUserData = mediaStaff.find(s => s.name === currentUsername);
+        const userRole = currentUserData ? currentUserData.role : (localStorage.getItem('userRole') || 'user');
+        
+        const loginTime = localStorage.getItem('loginTime') || 'غير مسجل';
+        document.getElementById('loginTimeDisplay').textContent = `🕒 وقت تسجيل الدخول : ${loginTime}`;
+        
+        let tasks = (JSON.parse(localStorage.getItem('savedTasks')) || []).filter(t => t.id !== "placeholder_saved");
+        let taskToDeleteId = null;
+
+        function formatTime12(timeString) {
+            if (!timeString) return 'غير محدد';
+            const [hours, minutes] = timeString.split(':');
+            let h = parseInt(hours);
+            const m = minutes || '00';
+            const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+            h = h % 12;
+            h = h ? h : 12;
+            return `${h}:${m} ${ampm}`;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'غير محدد';
+            return dateString.replace(/-/g, '/');
+        }
+
+        function reloadData() {
+            tasks = (JSON.parse(localStorage.getItem('savedTasks')) || []).filter(t => t.id !== "placeholder_saved");
+        }
+
+        function renderTasks() {
+            reloadData();
+            
+            const container = document.getElementById('tasksListContainer');
+            const header = document.getElementById('pendingHeader');
+            
+            let filteredTasks;
+            if (userRole === 'admin') {
+                filteredTasks = tasks;
+                const isAllHidden = localStorage.getItem('hideAllTasks') === 'true';
+                const hiddenStaffList = JSON.parse(localStorage.getItem('hiddenStaffTasks')) || [];
+
+                if (isAllHidden) {
+                    filteredTasks = [];
+                } else if (hiddenStaffList.length > 0) {
+                    filteredTasks = filteredTasks.filter(task => {
+                        if (task.staff) {
+                            return !task.staff.some(staffName => hiddenStaffList.includes(staffName));
+                        }
+                        return true;
+                    });
+                }
+            } else {
+                filteredTasks = tasks.filter(t => t.staff && t.staff.some(s => s.trim() === currentUsername.trim()));
+            }
+
+            filteredTasks.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+            header.innerText = `واجبات بانتظار موافقة مدير النظام (${filteredTasks.length})`;
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 30px; color: #777; background: #fff; border: 1px solid #eee; border-radius: 8px;">لا توجد واجبات معلقة حالياً.</div>';
+                return;
+            }
+
+            let html = '';
+            filteredTasks.forEach((task, index) => {
+                const formattedTime = formatTime12(task.time);
+                const formattedDate = formatDate(task.date);
+                
+                let borderColor = '#e0e0e0';
+                if (task.type === 'نشر') borderColor = '#dc3545';
+                else if (task.type === 'طباعة') borderColor = '#28a745';
+                else if (task.type === 'أرشيف') borderColor = '#ffc107';
+                
+                html += `
+                    <div style="background: #fff; border: 2px solid ${borderColor}; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;">
+                            <span style="color: #0066cc; font-size: 14px; font-weight: bold;">${index + 1}.</span>
+                            <span style="font-size: 18px; font-weight: bold; color: #333;">${task.title}</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>🏢 الوحدة: <strong>${task.unit}</strong></span>
+                                    <span>📁 النوع: <strong style="color: #666;">${task.type}</strong></span>
+                                </div>
+                            </div>
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>⏰ الوقت: <strong>${formattedTime}</strong></span>
+                                    <span>📅 التاريخ: <strong style="color: #666;">${formattedDate}</strong></span>
+                                </div>
+                            </div>
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                📍 الموقع: <strong>${task.location ? task.location : 'غير محدد'}</strong>
+                            </div>
+                            <div style="border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                                👥 الكوادر: <strong>${task.staff ? task.staff.join('، ') : 'لا يوجد'}</strong>
+                            </div>
+                        </div>
+                        ${userRole === 'admin' ? `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid #f0f0f0; padding-top: 10px;">
+                            <button onclick="editTask(${task.id})" style="background: #ffc107; color: #000; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✏️ تعديل</button>
+                            <button onclick="approveTask(${task.id})" style="background: #28a745; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✅ موافقة</button>
+                            <button onclick="promptDelete(${task.id})" style="background: #dc3545; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">🗑️ حذف</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.editTask = function(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            localStorage.setItem('editingTask', JSON.stringify(task));
+            if (window.appInstance && typeof window.appInstance.switchView === 'function') {
+                window.appInstance.switchView('new');
+            }
+        };
+
+        window.approveTask = async function(id) {
+            let index = tasks.findIndex(t => t.id === id);
+            if (index !== -1) {
+                const approvedTask = tasks.splice(index, 1)[0];
+                approvedTask.status = 'approved';
+                localStorage.setItem('savedTasks', JSON.stringify(tasks));
+                
+                let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+                completedTasks.push(approvedTask);
+                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+
+                await window.appInstance.syncWithIndicator();
+                
+                window.appInstance.showNotification(`✅ تمت الموافقة على الواجب: ${approvedTask.title}`, 'success');
+
+                document.getElementById('approvedTaskTitle').textContent = approvedTask.title;
+                document.getElementById('customApproveModal').style.display = 'flex';
+                
+                renderTasks();
+            }
+        };
+
+        window.promptDelete = function(id) {
+            taskToDeleteId = id;
+            document.getElementById('customDeleteModal').style.display = 'flex';
+        };
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+            taskToDeleteId = null;
+            document.getElementById('customDeleteModal').style.display = 'none';
+        });
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (taskToDeleteId !== null) {
+                tasks = tasks.filter(t => t.id !== taskToDeleteId);
+                localStorage.setItem('savedTasks', JSON.stringify(tasks));
+                
+                await window.appInstance.syncWithIndicator();
+                
+                window.appInstance.showNotification('🗑️ تم حذف الواجب بنجاح!', 'error');
+                
+                document.getElementById('customDeleteModal').style.display = 'none';
+                taskToDeleteId = null;
+                renderTasks();
+            }
+        });
+
+        document.getElementById('closeApproveBtn').addEventListener('click', function() {
+            document.getElementById('customApproveModal').style.display = 'none';
+        });
+
+        // ✅ إعادة التحميل الفوري عند استقبال تحديثات Firebase
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'savedTasks' || e.key === 'completedTasks' || e.key === 'hiddenStaffTasks' || e.key === 'hideAllTasks') {
+                renderTasks();
+            }
+        });
+
+        window.addEventListener('appDataUpdated', function() {
+            renderTasks();
+        });
+
+        renderTasks();
+    })();
+</script>

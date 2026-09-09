@@ -1,0 +1,423 @@
+<link rel="stylesheet" href="assets/css/new.css">
+<div class="new-task-container">
+    
+    <!-- الإطار العلوي -->
+    <div style="border: 2px solid #0066cc; border-radius: 10px; padding: 15px; margin-bottom: 20px; background: #f0f7ff; text-align: center; width: 100%; box-sizing: border-box;">
+        <div style="font-size: 16px; font-weight: bold; color: #333;">
+            👤 <span id="headerUsername">...</span> 
+            (<span id="headerUserUnit" style="color: #0066cc;">...</span>) 
+            | 📋 واجباتي: <span id="headerUserTasksCount" style="color: #dc3545;">0</span>
+        </div>
+    </div>
+
+<form id="newTaskForm">
+<!-- الإطار الأول -->
+<div class="form-section-box">
+<div class="form-row full-width">
+<label for="taskTitle">عنوان الواجب</label>
+<input type="text" id="taskTitle" required placeholder="أدخل عنوان الواجب هنا...">
+</div>
+<div class="form-row-group">
+<div class="form-row" id="unitFieldContainer">
+<label for="unitSelect">الوحدة</label>
+<select id="unitSelect" required>
+<option value="">اختر الوحدة</option>
+<option value="تصوير">تصوير</option>
+<option value="تصميم">تصميم</option>
+<option value="مونتاج">مونتاج</option>
+<option value="تحرير">تحرير</option>
+<option value="ناشر">ناشر</option>
+<option value="توثيق">توثيق</option>
+<option value="تطوع">تطوع</option>
+</select>
+</div>
+<div class="form-row">
+<label for="typeSelect">النوع</label>
+<select id="typeSelect" required>
+<option value="">اختر النوع</option>
+</select>
+</div>
+</div>
+<div class="form-row-group">
+<div class="form-row">
+<label for="execTime">وقت التنفيذ</label>
+<input type="time" id="execTime" required>
+</div>
+<div class="form-row">
+<label for="execDate">تاريخ التنفيذ <span style="color: red;">*</span></label>
+<input type="date" id="execDate" required>
+</div>
+</div>
+<div class="form-row full-width">
+<label for="taskLocation">الموقع (اختياري)</label>
+<input type="text" id="taskLocation" placeholder="حدد موقع التنفيذ...">
+</div>
+<div class="form-row full-width">
+<label>الكوادر المكلفة (يجب اختيار كادر واحد على الأقل)</label>
+<div id="staffGrid" class="staff-checkbox-grid">
+<p class="placeholder-text">الرجاء اختيار الوحدة لعرض الكوادر المرتبطة...</p>
+</div>
+<span id="staffError" class="error-msg" style="color: red; font-size: 12px; display: none; margin-top: 5px;">يرجى اختيار كادر واحد على الأقل.</span>
+</div>
+</div>
+<!-- الإطار الثاني (الأزرار) -->
+<div class="form-section-box buttons-box">
+<div style="display: flex; flex-direction: row !important; justify-content: space-between; gap: 10px; flex-wrap: nowrap !important;">
+    <button type="submit" id="saveTaskBtn" style="background: #0066cc; color: #fff; border: none; height: 48px; padding: 0 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; box-sizing: border-box; transition: width 0.3s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">💾 حفظ</button>
+    <button type="button" id="cancelEditTaskBtn" style="background: #e0e0e0; color: #333; border: none; height: 48px; padding: 0 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; box-sizing: border-box; display: none; transition: width 0.3s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">❌ إلغاء التعديل</button>
+</div>
+</div>
+</form>
+</div>
+
+<!-- نافذة التأكيد -->
+<div id="successModal" class="modal-overlay" style="display: none;">
+<div class="modal-content">
+<div id="modalBody"></div>
+<div id="modalActions"></div>
+</div>
+</div>
+
+<script>
+(function() {
+    let mediaStaff = JSON.parse(localStorage.getItem('mediaStaff')) || [];
+    const currentUsername = localStorage.getItem('currentUser') || '';
+
+    const currentUserData = mediaStaff.find(s => s.name === currentUsername);
+
+    let userUnit = currentUserData ? currentUserData.unit : (localStorage.getItem('currentUserUnit') || '');
+    let userRole = currentUserData ? currentUserData.role : (localStorage.getItem('currentUserRole') || 'user');
+
+    const unitStaffData = {};
+    const unitTypeMapping = {
+        "تصوير": ["نشر", "أرشيف"],
+        "تصميم": ["نشر", "طباعة"],
+        "مونتاج": ["نشر"],
+        "تحرير": ["نشر", "أرشيف"],
+        "ناشر": ["نشر"],
+        "توثيق": ["أرشيف"],
+        "تطوع": ["نشر", "أرشيف"]
+    };
+
+    mediaStaff.forEach(member => {
+        if (!unitStaffData[member.unit]) {
+            unitStaffData[member.unit] = [];
+        }
+        if (!unitStaffData[member.unit].includes(member.name)) {
+            unitStaffData[member.unit].push(member.name);
+        }
+    });
+
+    if (currentUsername && userUnit) {
+        if (!unitStaffData[userUnit]) unitStaffData[userUnit] = [];
+        if (!unitStaffData[userUnit].includes(currentUsername)) {
+            unitStaffData[userUnit].push(currentUsername);
+        }
+    }
+
+    const unitSelect = document.getElementById('unitSelect');
+    const typeSelect = document.getElementById('typeSelect');
+    const staffGrid = document.getElementById('staffGrid');
+    const newTaskForm = document.getElementById('newTaskForm');
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+    const cancelEditTaskBtn = document.getElementById('cancelEditTaskBtn');
+    const successModal = document.getElementById('successModal');
+    const modalBody = document.getElementById('modalBody');
+    const modalActions = document.getElementById('modalActions');
+
+    if (!unitSelect || !typeSelect || !staffGrid || !newTaskForm) return;
+
+    const completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+    const completedUserTasks = completedTasks.filter(task => 
+        task.staff && task.staff.includes(currentUsername)
+    );
+
+    document.getElementById('headerUsername').textContent = currentUsername || 'زائر';
+    document.getElementById('headerUserUnit').textContent = userUnit || 'غير محدد';
+    document.getElementById('headerUserTasksCount').textContent = completedUserTasks.length;
+
+    function resetTaskButtons() {
+        saveTaskBtn.style.width = '100%';
+        cancelEditTaskBtn.style.width = '0%';
+        cancelEditTaskBtn.style.display = 'none';
+        saveTaskBtn.textContent = '💾 حفظ';
+    }
+
+    function showEditTaskButtons() {
+        saveTaskBtn.style.width = '48%';
+        cancelEditTaskBtn.style.width = '48%';
+        cancelEditTaskBtn.style.display = 'block';
+        saveTaskBtn.textContent = '💾 تحديث البيانات';
+    }
+
+    function resetFormFields() {
+        newTaskForm.reset();
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const time24 = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        document.getElementById('execDate').value = `${year}-${month}-${day}`;
+        document.getElementById('execTime').value = time24;
+    }
+
+    function fillTypesForUnit(selectedUnit) {
+        typeSelect.innerHTML = '<option value="">اختر النوع</option>';
+        if (selectedUnit && unitTypeMapping[selectedUnit]) {
+            unitTypeMapping[selectedUnit].forEach(type => {
+                const opt = document.createElement('option');
+                opt.value = type;
+                opt.textContent = type;
+                typeSelect.appendChild(opt);
+            });
+        }
+    }
+
+    function renderStaffForUnit(selectedUnit) {
+        staffGrid.innerHTML = '';
+        if (selectedUnit && unitStaffData[selectedUnit]) {
+            unitStaffData[selectedUnit].forEach((staffName) => {
+                const label = document.createElement('label');
+                label.className = 'staff-item';
+                label.innerHTML = `<input type="checkbox" name="staff" value="${staffName}"> ${staffName}`;
+                staffGrid.appendChild(label);
+            });
+        } else {
+            staffGrid.innerHTML = '<p class="placeholder-text">الرجاء اختيار الوحدة لعرض الكوادر المرتبطة...</p>';
+        }
+    }
+
+    function lockUserStaff() {
+        if (userRole === 'user') {
+            setTimeout(() => {
+                document.querySelectorAll('input[name="staff"]').forEach(cb => {
+                    if (cb.value === currentUsername) {
+                        cb.checked = true;
+                        cb.disabled = true;
+                    }
+                });
+            }, 100);
+        }
+    }
+
+    function autoFillForm(selectedUnit) {
+        fillTypesForUnit(selectedUnit);
+        renderStaffForUnit(selectedUnit);
+        lockUserStaff();
+    }
+
+    unitSelect.addEventListener('change', function() {
+        autoFillForm(this.value);
+    });
+
+    if (userRole === 'user' && userUnit) {
+        unitSelect.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = userUnit;
+        opt.textContent = userUnit;
+        unitSelect.appendChild(opt);
+        unitSelect.value = userUnit;
+        autoFillForm(userUnit);
+    } else if (userRole === 'admin') {
+        unitSelect.value = '';
+        typeSelect.innerHTML = '<option value="">اختر النوع</option>';
+        staffGrid.innerHTML = '<p class="placeholder-text">الرجاء اختيار الوحدة لعرض الكوادر المرتبطة...</p>';
+    }
+
+    const editingTaskData = localStorage.getItem('editingTask');
+    if (editingTaskData) {
+        const task = JSON.parse(editingTaskData);
+        if (task.unit) {
+            unitSelect.value = task.unit;
+            autoFillForm(task.unit);
+        }
+        document.getElementById('taskTitle').value = task.title || '';
+        setTimeout(() => { if (task.type) typeSelect.value = task.type; }, 50);
+        document.getElementById('execTime').value = task.time || '';
+        document.getElementById('execDate').value = task.date || '';
+        if (task.location) document.getElementById('taskLocation').value = task.location;
+        if (task.staff) {
+            setTimeout(() => {
+                document.querySelectorAll('input[name="staff"]').forEach(cb => {
+                    if (task.staff.includes(cb.value)) cb.checked = true;
+                });
+                lockUserStaff();
+            }, 100);
+        }
+        showEditTaskButtons();
+    } else {
+        resetTaskButtons();
+        resetFormFields();
+    }
+
+    if (cancelEditTaskBtn) {
+        cancelEditTaskBtn.addEventListener('click', () => {
+            localStorage.removeItem('editingTask');
+            resetTaskButtons();
+            resetFormFields();
+            if (userRole === 'admin') {
+                unitSelect.value = '';
+                typeSelect.innerHTML = '<option value="">اختر النوع</option>';
+                staffGrid.innerHTML = '<p class="placeholder-text">الرجاء اختيار الوحدة لعرض الكوادر المرتبطة...</p>';
+            } else if (userUnit) {
+                unitSelect.value = userUnit;
+                autoFillForm(userUnit);
+            }
+            if(window.appInstance && typeof window.appInstance.switchView === 'function') {
+                window.appInstance.switchView('home');
+            }
+        });
+    }
+
+    newTaskForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const checkedStaff = document.querySelectorAll('input[name="staff"]:checked');
+        const staffError = document.getElementById('staffError');
+        if (checkedStaff.length === 0) { staffError.style.display = 'block'; return; }
+        else { staffError.style.display = 'none'; }
+
+        const taskData = {
+            title: document.getElementById('taskTitle').value,
+            unit: unitSelect.value,
+            type: typeSelect.value,
+            time: document.getElementById('execTime').value,
+            date: document.getElementById('execDate').value,
+            location: document.getElementById('taskLocation').value,
+            staff: Array.from(checkedStaff).map(el => el.value),
+            timestamp: new Date().toISOString(),
+            createdBy: currentUsername
+        };
+
+        let tasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+
+        if (editingTaskData) {
+            const editingTask = JSON.parse(editingTaskData);
+            taskData.id = editingTask.id;
+
+            if (userRole === 'admin') {
+                taskData.status = 'approved';
+                tasks = tasks.filter(t => t.id !== editingTask.id);
+                localStorage.setItem('savedTasks', JSON.stringify(tasks));
+                const completedIndex = completedTasks.findIndex(t => t.id === editingTask.id);
+                if (completedIndex !== -1) completedTasks[completedIndex] = taskData;
+                else completedTasks.push(taskData);
+                localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+                localStorage.removeItem('editingTask');
+                
+                await window.appInstance.syncWithIndicator();
+                await window.appInstance.refreshDataFromFirebase();
+                
+                window.appInstance.showNotification('✅ تم تعديل الواجب بنجاح!', 'success');
+                showSuccessModal('admin');
+                return;
+            }
+
+            taskData.status = 'pending';
+            tasks = tasks.map(t => t.id === editingTask.id ? { ...taskData, id: editingTask.id } : t);
+            localStorage.setItem('savedTasks', JSON.stringify(tasks));
+            localStorage.removeItem('editingTask');
+            
+            await window.appInstance.syncWithIndicator();
+            await window.appInstance.refreshDataFromFirebase();
+            
+            window.appInstance.showNotification('📤 تم إرسال التعديل إلى مدير النظام بانتظار الموافقة!', 'info');
+            showSuccessModal('user');
+            return;
+        }
+
+        taskData.id = Date.now();
+
+        if (userRole === 'admin') {
+            taskData.status = 'approved';
+            completedTasks.push(taskData);
+            localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
+            
+            await window.appInstance.syncWithIndicator();
+            await window.appInstance.refreshDataFromFirebase();
+            
+            window.appInstance.showNotification('✅ تم حفظ الواجب بنجاح!', 'success');
+            showSuccessModal('admin');
+        } else {
+            taskData.status = 'pending';
+            tasks.push(taskData);
+            localStorage.setItem('savedTasks', JSON.stringify(tasks));
+            
+            await window.appInstance.syncWithIndicator();
+            await window.appInstance.refreshDataFromFirebase();
+            
+            window.appInstance.showNotification('📤 تم إرسال الواجب إلى مدير النظام بانتظار الموافقة!', 'info');
+            showSuccessModal('user');
+        }
+    });
+
+    function showSuccessModal(role) {
+        if (role === 'admin') {
+            modalBody.innerHTML = `
+                <div style="font-size: 40px; color: #28a745; margin-bottom: 10px;">✔</div>
+                <h3 style="margin-bottom: 10px; color: #333;">تم الحفظ بنجاح</h3>
+                <p style="font-size: 13px; color: #666;">تم حفظ الواجب ونقله إلى واجهة البحث.</p>
+            `;
+            modalActions.innerHTML = `
+                <button id="btnNewTask" class="modal-btn" style="width: 48%; background: #0066cc; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">➕ واجب جديد</button>
+                <button id="btnSearch" class="modal-btn secondary" style="width: 48%; background: #28a745; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">🔍 البحث</button>
+            `;
+            successModal.style.display = 'flex';
+
+            document.getElementById('btnNewTask').addEventListener('click', function() {
+                localStorage.removeItem('editingTask');
+                successModal.style.display = 'none';
+                resetTaskButtons();
+                resetFormFields();
+                if (userRole === 'admin') {
+                    unitSelect.value = '';
+                    typeSelect.innerHTML = '<option value="">اختر النوع</option>';
+                    staffGrid.innerHTML = '<p class="placeholder-text">الرجاء اختيار الوحدة لعرض الكوادر المرتبطة...</p>';
+                } else if (userUnit) {
+                    unitSelect.value = userUnit;
+                    autoFillForm(userUnit);
+                }
+            });
+
+            document.getElementById('btnSearch').addEventListener('click', function() {
+                localStorage.removeItem('editingTask');
+                successModal.style.display = 'none';
+                resetTaskButtons();
+                resetFormFields();
+                if(window.appInstance && typeof window.appInstance.switchView === 'function') {
+                    window.appInstance.switchView('search');
+                }
+            });
+        } else {
+            modalBody.innerHTML = `
+                <div style="font-size: 40px; color: #28a745; margin-bottom: 10px;">✔</div>
+                <h3 style="margin-bottom: 10px; color: #333;">تم الإرسال بنجاح</h3>
+                <p style="font-size: 13px; color: #666;">تم إرسال الواجب إلى الرئيسية بانتظار موافقة مدير النظام.</p>
+            `;
+            modalActions.innerHTML = `
+                <button id="btnNewTaskUser" class="modal-btn" style="width: 48%; background: #0066cc; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">➕ واجب جديد</button>
+                <button id="btnHome" class="modal-btn secondary" style="width: 48%; background: #6c757d; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">🏠 الرئيسية</button>
+            `;
+            successModal.style.display = 'flex';
+
+            document.getElementById('btnNewTaskUser').addEventListener('click', function() {
+                localStorage.removeItem('editingTask');
+                successModal.style.display = 'none';
+                resetTaskButtons();
+                resetFormFields();
+                if (userUnit) { unitSelect.value = userUnit; autoFillForm(userUnit); }
+            });
+
+            document.getElementById('btnHome').addEventListener('click', function() {
+                localStorage.removeItem('editingTask');
+                successModal.style.display = 'none';
+                resetTaskButtons();
+                resetFormFields();
+                if(window.appInstance && typeof window.appInstance.switchView === 'function') {
+                    window.appInstance.switchView('home');
+                }
+            });
+        }
+    }
+})();
+</script>

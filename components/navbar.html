@@ -1,0 +1,58 @@
+<div class="top-navbar" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08); z-index: 1000; padding: 15px 10px; display: flex; justify-content: center; align-items: center; direction: rtl; border-top: 1px solid #eaeaea;">
+    
+    <div style="display: flex; justify-content: space-between; position: relative; align-items: center; width: 100%; max-width: 600px;">
+        
+        <div id="progressLine" style="position: absolute; top: 22px; left: 10%; right: 10%; height: 3px; background: #dc3545; z-index: 1; transition: width 0.4s ease;"></div>
+
+        <div class="step" data-view="home" style="cursor: pointer; text-align: center; position: relative; z-index: 2; flex: 1;">
+            <div class="step-icon" style="width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; border: 2px solid #e0e0e0; display: flex; justify-content: center; align-items: center; margin: 0 auto 8px; color: #666; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 20px;">🏠</div>
+            <span class="step-text" style="font-size: 13px; color: #666; font-weight: 500; white-space: nowrap;">الرئيسية</span>
+        </div>
+
+        <div class="step" data-view="new" style="cursor: pointer; text-align: center; position: relative; z-index: 2; flex: 1;">
+            <div class="step-icon" style="width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; border: 2px solid #e0e0e0; display: flex; justify-content: center; align-items: center; margin: 0 auto 8px; color: #666; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 20px;">➕</div>
+            <span class="step-text" style="font-size: 13px; color: #666; font-weight: 500; white-space: nowrap;">جديد</span>
+        </div>
+
+        <div class="step" data-view="search" style="cursor: pointer; text-align: center; position: relative; z-index: 2; flex: 1;">
+            <div class="step-icon" style="width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; border: 2px solid #e0e0e0; display: flex; justify-content: center; align-items: center; margin: 0 auto 8px; color: #666; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 20px;">🔍</div>
+            <span class="step-text" style="font-size: 13px; color: #666; font-weight: 500; white-space: nowrap;">بحث</span>
+        </div>
+
+        <div class="step" data-view="reports" style="cursor: pointer; text-align: center; position: relative; z-index: 2; flex: 1;">
+            <div class="step-icon" style="width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; border: 2px solid #e0e0e0; display: flex; justify-content: center; align-items: center; margin: 0 auto 8px; color: #666; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 20px;">📊</div>
+            <span class="step-text" style="font-size: 13px; color: #666; font-weight: 500; white-space: nowrap;">تقارير</span>
+        </div>
+
+        <div class="step" data-view="settings" style="cursor: pointer; text-align: center; position: relative; z-index: 2; flex: 1;">
+            <div class="step-icon" style="width: 45px; height: 45px; border-radius: 50%; background-color: #ffffff; border: 2px solid #e0e0e0; display: flex; justify-content: center; align-items: center; margin: 0 auto 8px; color: #666; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 20px;">⚙️</div>
+            <span class="step-text" style="font-size: 13px; color: #666; font-weight: 500; white-space: nowrap;">الإعدادات</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- ✅ منع الوميض والخلفية الزرقاء -->
+<style>
+    .top-navbar,
+    .top-navbar *,
+    .step,
+    .step * {
+        -webkit-tap-highlight-color: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* ✅ الحفاظ على الإطار الأحمر للواجهة النشطة */
+    .step.active .step-icon {
+        border-color: #dc3545 !important;
+        background-color: #dc3545 !important; 
+        color: #ffffff !important; 
+        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15) !important;
+    }
+    
+    .step.active .step-text {
+        color: #dc3545 !important;
+        font-weight: 600 !important;
+    }
+</style>
