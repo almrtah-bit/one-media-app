@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>One Media - تطبيق الكادر الإعلامي</title>
+
+    <!-- إعدادات PWA للهواتف الذكية -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0066cc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OneMedia">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --primary-hover: #0052a3;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --muted-text: #666666;
+            --border-color: #e0e0e0;
+            --input-bg: #ffffff;
+            --input-border: #cccccc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            direction: rtl;
+            text-align: right;
+            padding-bottom: 75px; /* مساحة لشريط التنقل السفلي */
+        }
+
+        /* الهيدر العلوي */
+        .app-header {
+            background: var(--primary-color);
+            color: #ffffff;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .app-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .sync-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* بنر تثبيت PWA */
+        #pwaInstallBanner {
+            display: none;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        #pwaInstallBanner button {
+            background: white;
+            color: #28a745;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* الحاوية الرئيسية للواجهات */
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* تصميم كروت الواجبات */
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-right: 5px solid var(--primary-color);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .task-card.type-نشر { border-right-color: #dc3545; }
+        .task-card.type-طباعة { border-right-color: #28a745; }
+        .task-card.type-أرشيف { border-right-color: #ffc107; }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 8px;
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .task-details {
+            font-size: 13px;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #f5f5f5;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-primary { background: var(--primary-color); color: white; }
+
+        /* شريط التنقل السفلي */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 2000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+            text-decoration: none;
+            font-size: 11px;
+            cursor: pointer;
+            width: 20%;
+        }
+
+        .nav-item .icon {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* التنبيهات المنبثقة Toast */
+        #toastContainer {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 90%;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #333;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show { opacity: 1; }
+        .toast.success { background: #28a745; }
+        .toast.error { background: #dc3545; }
+        .toast.info { background: #0066cc; }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر العلوي -->
+    <header class="app-header">
+        <div class="app-title">
+            <span>📷</span> One Media
+        </div>
+        <div class="header-actions">
+            <span class="user-badge" id="currentUserDisplay">الزائر</span>
+            <button class="sync-btn" title="مزامنة" onclick="window.appInstance.syncWithIndicator()">🔄</button>
+        </div>
+    </header>
+
+    <!-- بنر تثبيت الـ PWA -->
+    <div id="pwaInstallBanner">
+        <span>📱 يتوفر تطبيق OneMedia للهاتف!</span>
+        <button id="pwaInstallBtn">تثبيت الآن</button>
+    </div>
+
+    <!-- حاوية التنبيهات -->
+    <div id="toastContainer"></div>
+
+    <!-- المحتوى الرئيسي للمشروع -->
+    <main class="main-container">
+        
+        <!-- 1. واجهة الواجبات الحالية (الرئيسية) -->
+        <section id="view-home" class="view-section active">
+            <h2 style="font-size: 18px; margin-bottom: 15px; font-weight: bold;">📋 الواجبات الحالية (<span id="pendingTasksCount">0</span>)</h2>
+            <div id="pendingTasksList">
+                <!-- يتم تحميل الواجبات الحالية هنا ديناميكياً -->
+            </div>
+        </section>
+
+        <!-- 2. واجهة إضافة / تعديل واجب -->
+        <section id="view-new" class="view-section">
+            <div style="background: var(--card-bg); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color);">
+                <h2 id="taskFormTitle" style="font-size: 16px; margin-bottom: 15px; color: var(--primary-color);">➕ إضافة واجب جديد</h2>
+                <form id="taskForm" onsubmit="event.preventDefault(); window.appInstance.saveTask();">
+                    <input type="hidden" id="taskId">
+                    
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">عنوان الواجب</label>
+                        <input type="text" id="taskTitle" required placeholder="أدخل عنوان الواجب" style="width: 100%; height: 40px; padding: 8px; border: 1px solid var(--input-border); border-radius: 6px;">
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">الوحدة</label>
+                            <select id="taskUnit" required style="width: 100%; height: 40px; padding: 8px; border: 1px solid var(--input-border); border-radius: 6px;">
+                                <option value="">اختر الوحدة</option>
+                                <option value="تصوير">تصوير</option>
+                                <option value="تصميم">تصميم</option>
+                                <option value="مونتاج">مونتاج</option>
+                                <option value="تحرير">تحرير</option>
+                                <option value="ناشر">ناشر</option>
+                                <option value="توثيق">توثيق</option>
+                                <option value="تطوع">تطوع</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">النوع</label>
+                            <select id="taskType" required style="width: 100%; height: 40px; padding: 8px; border: 1px solid var(--input-border); border-radius: 6px;">
+                                <option value="نشر">نشر</option>
+                                <option value="طباعة">طباعة</option>
+                                <option value="أرشيف">أرشيف</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">التاريخ</label>
+                            <input type="date" id="taskDate" required style="width: 100%; height: 40px; padding: 8px; border: 1px solid var(--input-border); border-radius: 6px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">الوقت</label>
+                            <input type="time" id="taskTime" required style="width: 100%; height: 40px; padding: 8px; border: 1px solid var(--input-border); border-radius: 6px;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">الموقع</label>
+                        <input type="text" id="taskLocation" placeholder="موقع الإنجاز" style="width: 100%; height: 40px; padding: 8px; border: 1px solid var(--input-border); border-radius: 6px;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; height: 45px; font-size: 14px; margin-top: 10px;">💾 حفظ الواجب</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 3. واجهة البحث والفلترة (تُحمل من search.html) -->
+        <section id="view-search" class="view-section"></section>
+
+        <!-- 4. واجهة الكوادر (تُحمل من media-staff.html) -->
+        <section id="view-staff" class="view-section"></section>
+
+        <!-- 5. واجهة الإعدادات (تُحمل من app-settings.html) -->
+        <section id="view-settings" class="view-section"></section>
+
+    </main>
+
+    <!-- شريط التنقل السفلي -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="window.appInstance.switchView('home')">
+            <span class="icon">🏠</span>
+            <span>الرئيسية</span>
+        </div>
+        <div class="nav-item" onclick="window.appInstance.switchView('new')">
+            <span class="icon">➕</span>
+            <span>واجب جديد</span>
+        </div>
+        <div class="nav-item" onclick="window.appInstance.switchView('search')">
+            <span class="icon">🔍</span>
+            <span>البحث</span>
+        </div>
+        <div class="nav-item" onclick="window.appInstance.switchView('staff')">
+            <span class="icon">👥</span>
+            <span>الكوادر</span>
+        </div>
+        <div class="nav-item" onclick="window.appInstance.switchView('settings')">
+            <span class="icon">⚙️</span>
+            <span>الإعدادات</span>
+        </div>
+    </nav>
+
+    <!-- البرمجة الرئيسية للغلاف والتطبيق -->
+    <script>
+        (function() {
+            // كائن التطبيق الشامل
+            window.appInstance = {
+                
+                // التبديل بين الواجهات
+                switchView: async function(viewName) {
+                    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+                    const targetView = document.getElementById(`view-${viewName}`);
+                    if (targetView) targetView.classList.add('active');
+
+                    // تحديد العنصر النشط في التاب السفلي
+                    const navIndex = ['home', 'new', 'search', 'staff', 'settings'].indexOf(viewName);
+                    if (navIndex !== -1) {
+                        document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+                    }
+
+                    // تحميل الواجهات الخارجية ديناميكياً إذا لم تكن محملة
+                    if (viewName === 'staff' && !targetView.innerHTML.trim()) {
+                        await this.loadExternalView('media-staff.html', 'view-staff');
+                    } else if (viewName === 'search' && !targetView.innerHTML.trim()) {
+                        await this.loadExternalView('search.html', 'view-search');
+                    } else if (viewName === 'settings' && !targetView.innerHTML.trim()) {
+                        await this.loadExternalView('app-settings.html', 'view-settings');
+                    }
+
+                    // إذا كانت العودة للرئيسية، أعد بناء قائمة الواجبات
+                    if (viewName === 'home') {
+                        this.renderPendingTasks();
+                    }
+                },
+
+                // جلب الواجهات الفرعية HTML
+                loadExternalView: async function(file, containerId) {
+                    try {
+                        const response = await fetch(file);
+                        if (response.ok) {
+                            const html = await response.text();
+                            const container = document.getElementById(containerId);
+                            container.innerHTML = html;
+                            
+                            // تنفيذ أي سكريبتات داخل الملف المجلوب
+                            const scripts = container.querySelectorAll('script');
+                            scripts.forEach(oldScript => {
+                                const newScript = document.createElement('script');
+                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                                oldScript.parentNode.replaceChild(newScript, oldScript);
+                            });
+                        }
+                    } catch (err) {
+                        console.error(`فشل تحميل الملف ${file}:`, err);
+                    }
+                },
+
+                // إظهار تنبيه Toast
+                showNotification: function(message, type = 'info') {
+                    const container = document.getElementById('toastContainer');
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.textContent = message;
+                    container.appendChild(toast);
+
+                    setTimeout(() => toast.classList.add('show'), 100);
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
+                },
+
+                // محاكاة المزامنة
+                syncWithIndicator: async function() {
+                    this.showNotification('🔄 جاري المزامنة مع السحابة...', 'info');
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            this.showNotification('✅ تمت المزامنة بنجاح!', 'success');
+                            resolve(true);
+                        }, 800);
+                    });
+                },
+
+                // عرض الواجبات الحالية (المعلقة)
+                renderPendingTasks: function() {
+                    const tasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+                    const pendingList = document.getElementById('pendingTasksList');
+                    const countEl = document.getElementById('pendingTasksCount');
+
+                    countEl.textContent = tasks.length;
+
+                    if (tasks.length === 0) {
+                        pendingList.innerHTML = '<p style="text-align: center; color: #777; padding: 30px;">لا توجد واجبات حالية.</p>';
+                        return;
+                    }
+
+                    let html = '';
+                    tasks.forEach(task => {
+                        html += `
+                            <div class="task-card type-${task.type}">
+                                <div class="task-header">
+                                    <span class="task-title">${task.title}</span>
+                                    <span style="font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 4px;">${task.unit}</span>
+                                </div>
+                                <div class="task-details">
+                                    <span>📅 التاريخ: ${task.date} | ⏰ الوقت: ${task.time}</span>
+                                    <span>📍 المكان: ${task.location || 'غير محدد'}</span>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn btn-success" onclick="window.appInstance.completeTask('${task.id}')">✅ إنجاز</button>
+                                    <button class="btn btn-warning" onclick="window.appInstance.editTask('${task.id}')">✏️ تعديل</button>
+                                    <button class="btn btn-danger" onclick="window.appInstance.deleteTask('${task.id}')">🗑️ حذف</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    pendingList.innerHTML = html;
+                },
+
+                // حفظ الواجب الجديد
+                saveTask: function() {
+                    const id = document.getElementById('taskId').value || Date.now().toString();
+                    const title = document.getElementById('taskTitle').value.trim();
+                    const unit = document.getElementById('taskUnit').value;
+                    const type = document.getElementById('taskType').value;
+                    const date = document.getElementById('taskDate').value;
+                    const time = document.getElementById('taskTime').value;
+                    const location = document.getElementById('taskLocation').value.trim();
+
+                    let tasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+                    const existingIndex = tasks.findIndex(t => t.id === id);
+
+                    const taskData = { id, title, unit, type, date, time, location, status: 'pending' };
+
+                    if (existingIndex !== -1) {
+                        tasks[existingIndex] = taskData;
+                        this.showNotification('تم تحديث الواجب بنجاح', 'success');
+                    } else {
+                        tasks.push(taskData);
+                        this.showNotification('تمت إضافة الواجب بنجاح', 'success');
+                    }
+
+                    localStorage.setItem('savedTasks', JSON.stringify(tasks));
+                    document.getElementById('taskForm').reset();
+                    document.getElementById('taskId').value = '';
+                    this.switchView('home');
+                },
+
+                // نقل الواجب للمنجزة
+                completeTask: function(id) {
+                    let tasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+                    let completed = JSON.parse(localStorage.getItem('completedTasks')) || [];
+
+                    const taskIndex = tasks.findIndex(t => String(t.id) === String(id));
+                    if (taskIndex !== -1) {
+                        const task = tasks.splice(taskIndex, 1)[0];
+                        task.status = 'completed';
+                        completed.push(task);
+
+                        localStorage.setItem('savedTasks', JSON.stringify(tasks));
+                        localStorage.setItem('completedTasks', JSON.stringify(completed));
+
+                        this.showNotification('🎉 تم إنجاز الواجب ونقله للأرشيف!', 'success');
+                        this.renderPendingTasks();
+                    }
+                },
+
+                // تعديل الواجب
+                editTask: function(id) {
+                    let tasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+                    const task = tasks.find(t => String(t.id) === String(id));
+                    if (!task) return;
+
+                    document.getElementById('taskId').value = task.id;
+                    document.getElementById('taskTitle').value = task.title;
+                    document.getElementById('taskUnit').value = task.unit;
+                    document.getElementById('taskType').value = task.type;
+                    document.getElementById('taskDate').value = task.date;
+                    document.getElementById('taskTime').value = task.time;
+                    document.getElementById('taskLocation').value = task.location || '';
+
+                    this.switchView('new');
+                },
+
+                // حذف الواجب
+                deleteTask: function(id) {
+                    if (confirm('هل أنت متأكد من حذف هذا الواجب؟')) {
+                        let tasks = JSON.parse(localStorage.getItem('savedTasks')) || [];
+                        tasks = tasks.filter(t => String(t.id) !== String(id));
+                        localStorage.setItem('savedTasks', JSON.stringify(tasks));
+                        this.showNotification('تم حذف الواجب', 'error');
+                        this.renderPendingTasks();
+                    }
+                }
+            };
+
+            // تهيئة اسم المستخدم الافتراضي
+            const currentUser = localStorage.getItem('currentUser') || 'سجاد مهدي';
+            document.getElementById('currentUserDisplay').textContent = currentUser;
+
+            // تحميل القائمة الأولى
+            window.appInstance.renderPendingTasks();
+
+        })();
+    </script>
+
+    <!-- تسجيل الـ Service Worker وإدارة التثبيت الـ PWA -->
+    <script>
+        // تسجيل الـ Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('✅ PWA Service Worker Registered:', reg.scope))
+                    .catch(err => console.error('❌ Service Worker Registration Failed:', err));
+            });
+        }
+
+        // إدارة إشعار تثبيت التطبيق
+        let deferredPrompt;
+        const pwaBanner = document.getElementById('pwaInstallBanner');
+        const pwaBtn = document.getElementById('pwaInstallBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaBanner.style.display = 'flex';
+        });
+
+        pwaBtn.addEventListener('click', () => {
+            pwaBanner.style.display = 'none';
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('👍 المستخدم وافق على تثبيت التطبيق');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
